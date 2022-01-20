@@ -46,7 +46,7 @@ selection = st.multiselect(
 query = f"""
 MATCH (v:Video)-[r:CONTAINS]->(w:Word)
 WHERE ANY(word IN w.name WHERE word in {selection}) AND r.number >= {lower_threshold}
-RETURN v.title AS title, v.url AS url
+RETURN DISTINCT v.title AS title, v.url AS url
 """
 results = neo4j_utils.query(query)
 st.markdown('<br>', unsafe_allow_html=True)
