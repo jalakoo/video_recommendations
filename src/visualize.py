@@ -1,24 +1,17 @@
 import streamlit as st
-from neo4j import GraphDatabase
-import pandas as pd
-import altair as alt
-import datetime
-from PIL import Image
-import keys
 from neo4j_utils import Neo4jConnection
-
+from dotenv import load_dotenv
+import os
 
 # SETUP
 #############################################################################
+load_dotenv()
+uri = os.environ['AURA_URI']
+user = os.environ['AURA_USER']
+password = os.environ['AURA_PASSWORD']
 neo4j_utils = Neo4jConnection(
-    uri=keys.aura_uri, user=keys.aura_user, pwd=keys.aura_password)
+    uri=uri, user=user, pwd=password)
 
-
-# def load_data(url):
-#     data = pd.read_csv(url)
-#     def lowercase(x): return str(x).lower()
-#     data.rename(lowercase, axis='columns', inplace=True)
-#     return data
 
 # @st.cache - Doesn't work for calls against driver
 def get_keywords(lower_threshold):
@@ -37,7 +30,7 @@ def get_keywords(lower_threshold):
 st.sidebar.markdown(
     "<font color=\"grey\">*Filter Options*</font>", unsafe_allow_html=True)
 lower_threshold = st.sidebar.slider(
-    "Minimum occurance in a video", 1, 10, 5, 1)
+    "Minimum occurance of keyword in a video", 1, 10, 5, 1)
 
 # MAIN
 #############################################################################
@@ -46,11 +39,9 @@ st.markdown(
     "<font color=\"grey\">*Want to learn more about Neo4j's Free AuraDB? Choose a selection of keywords from transcripts to get a list of the best videos you should watch!*</font>", unsafe_allow_html=True)
 st.markdown('<br>', unsafe_allow_html=True)
 
-# words = get_keywords()
-# keywords = [word.value('name') for word in words]
 keywords = get_keywords(lower_threshold)
-
-selection = st.multiselect("Enter or Select some keywords", keywords)
+selection = st.multiselect(
+    "Enter or Select keywords you're interested in", keywords)
 
 query = f"""
 MATCH (v:Video)-[r:CONTAINS]->(w:Word)
@@ -63,7 +54,7 @@ st.markdown('Video Recommendations:')
 
 if len(results) == 0:
     st.markdown(
-        '<font color=\"red\">No recommendations for keywords and threshold combination</font>', unsafe_allow_html=True)
+        '* <font color=\"red\">Nothing Yet!</font><font color=\"grey\"> Try a different threshold and keywords combination</font>', unsafe_allow_html=True)
 for record in results:
     print(f'visualize.py: title: {record.value("title")}')
     st.markdown(

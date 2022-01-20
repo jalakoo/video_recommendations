@@ -1,1 +1,1 @@
-web: sh setup.sh && streamlit run visualize.py
+web: sh setup.sh && streamlit run src/visualize.py
